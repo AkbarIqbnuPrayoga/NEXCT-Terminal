@@ -31,7 +31,7 @@ function proxiedImageSrc(url: string) {
   return raw;
 }
 
-// Dummy data for trading signals
+// Dummy data for trading signals (4 data)
 const dummyTradingSignals = [
   {
     _id: 'data1',
@@ -64,10 +64,42 @@ const dummyTradingSignals = [
     imageUrl: 'https://cdn.odzre.my.id/rdt.png',
     reasoning: 'Strong support level with bullish divergence on RSI',
     createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'data3',
+    asset: 'SOL/USDT',
+    signal: 'SHORT',
+    author: 'KingCrypto',
+    conviction: 7,
+    signalStatus: 'Wait',
+    entry: '$86 - $88',
+    stopLoss: '$91',
+    takeProfit1: '$82',
+    takeProfit2: '$80',
+    takeProfit3: '$75',
+    imageUrl: 'https://cdn.odzre.my.id/jjx.png',
+    reasoning: 'Resistance level with bearish divergence on MACD',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'data4',
+    asset: 'BNB/USDT',
+    signal: 'LONG',
+    author: 'BinanceWhale',
+    conviction: 9,
+    signalStatus: 'Wait',
+    entry: '$607 - $610',
+    stopLoss: '$588',
+    takeProfit1: '$620',
+    takeProfit2: '$635',
+    takeProfit3: '$650',
+    imageUrl: 'https://cdn.odzre.my.id/y20.png',
+    reasoning: 'Strong accumulation zone with increasing volume',
+    createdAt: new Date().toISOString()
   }
 ];
 
-// Dummy data for market updates
+// Dummy data for market updates (4 data)
 const dummyMarketUpdates = [
   {
     _id: 'data1',
@@ -86,18 +118,36 @@ const dummyMarketUpdates = [
     imageUrl: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=800&auto=format&fit=crop',
     createdAt: new Date().toISOString(),
     type: 'analysis'
+  },
+  {
+    _id: 'data3',
+    title: 'Fed Signals Rate Cut in September',
+    content: 'Federal Reserve Chair Jerome Powell hints at possible rate cut in upcoming September meeting. Market expects 25bps cut with 70% probability.',
+    author: 'MacroVision',
+    imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop',
+    createdAt: new Date().toISOString(),
+    type: 'news'
+  },
+  {
+    _id: 'data4',
+    title: 'Solana Network Outage Resolved',
+    content: 'Solana mainnet-beta experienced temporary block production halt for 20 minutes. Validators successfully upgraded and network is now operational.',
+    author: 'Gadang99',
+    imageUrl: 'https://images.unsplash.com/photo-1642790551116-18e150f248e3?w=800&auto=format&fit=crop',
+    createdAt: new Date().toISOString(),
+    type: 'news'
   }
 ];
 
-// Dummy data for research updates
+// Dummy data for research updates (4 data)
 const dummyResearchData = {
   research: [
     {
       _id: 'data1',
       title: 'Order flow and cryptocurrency returns',
-      description: 'This study examines the information content of order flow on cryptocurrency returns.',
+      description: 'This study examines the information content of order flow on cryptocurrency returns using global order flow data across 11 major fiat currencies.',
       author: 'Kucing Malam',
-      tags: ['Order-Flow', 'Market Cycles', 'Halving', 'Machine Learning'],
+      tags: ['Order-Flow', 'Market Cycles', 'Machine Learning'],
       link: 'https://www.sciencedirect.com/science/article/pii/S1386418126000029',
       createdAt: new Date().toISOString()
     },
@@ -106,8 +156,26 @@ const dummyResearchData = {
       title: 'Analyzing the Economic Impact of Decentralization on Users',
       description: 'This study models the final price paid by users of decentralized ledgers as a result of a two-stage game between miners and users.',
       author: 'GOLD$1',
-      tags: ['Blockchain', 'Cryptocurrency', 'Decentralization', 'Equilibrium', 'Analysis', 'Tullock'],
+      tags: ['Blockchain', 'Cryptocurrency', 'Decentralization', 'Equilibrium'],
       link: 'https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITCS.2026.93',
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: 'data3',
+      title: 'Bitcoin as Digital Gold: A Portfolio Analysis',
+      description: 'Research analyzing Bitcoin\'s role as a hedge against inflation and its correlation with traditional assets during market stress periods.',
+      author: 'Satoshi Nagato',
+      tags: ['Bitcoin', 'Portfolio', 'Hedge', 'Inflation'],
+      link: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5123456',
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: 'data4',
+      title: 'MEV and Ethereum DeFi: A Comprehensive Study',
+      description: 'Analysis of Maximal Extractable Value (MEV) patterns in Ethereum DeFi protocols and their impact on user transactions and network efficiency.',
+      author: 'Rin Pain',
+      tags: ['Ethereum', 'MEV', 'DeFi', 'Blockchain'],
+      link: 'https://arxiv.org/pdf/2406.12345',
       createdAt: new Date().toISOString()
     }
   ]
