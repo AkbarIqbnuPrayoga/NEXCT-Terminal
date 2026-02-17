@@ -196,7 +196,7 @@ export default function ProfilePage({ username }: { username: string }) {
       <div className="mx-auto max-w-4xl px-4 py-10">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-xs text-gray-400">Quantum Terminal • Community Profile</div>
+            <div className="text-xs text-gray-400">NEXCT Terminal • Community Profile</div>
             <h1 className="mt-1 text-2xl font-semibold">{profile.username}</h1>
           </div>
           <div className="flex items-center gap-2">

@@ -31,12 +31,90 @@ function proxiedImageSrc(url: string) {
   return raw;
 }
 
+// Dummy data for trading signals
+const dummyTradingSignals = [
+  {
+    _id: 'data1',
+    asset: 'BTC/USDT',
+    signal: 'LONG',
+    author: 'MalamProfit',
+    conviction: 8,
+    signalStatus: 'Running',
+    entry: '$67,000 - $68,000',
+    stopLoss: '$65,000',
+    takeProfit1: '$70,000',
+    takeProfit2: '$75,000',
+    takeProfit3: '$80,000',
+    imageUrl: 'https://cdn.odzre.my.id/niz.png',
+    reasoning: 'Strong support level with bullish divergence on RSI',
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: 'data2',
+    asset: 'ETH/USDT',
+    signal: 'LONG',
+    author: 'TraderMuda',
+    conviction: 6,
+    signalStatus: 'Running',
+    entry: '$1,950 - $1,980',
+    stopLoss: '$1,900',
+    takeProfit1: '$2,050',
+    takeProfit2: '$2,150',
+    takeProfit3: '$2,200',
+    imageUrl: 'https://cdn.odzre.my.id/rdt.png',
+    reasoning: 'Strong support level with bullish divergence on RSI',
+    createdAt: new Date().toISOString()
+  }
+];
+
+// Dummy data for market updates
+const dummyMarketUpdates = [
+  {
+    _id: 'data1',
+    title: 'Bitcoin ETF Inflows Surge to $1.2B Weekly',
+    content: 'Institutional interest continues to grow as Bitcoin ETFs see record inflows this week. BlackRock and Fidelity lead the pack with combined inflows exceeding $800M.',
+    author: 'MasriFX',
+    imageUrl: 'https://images.unsplash.com/photo-1642790551116-18e150f248e3?w=800&auto=format&fit=crop',
+    createdAt: new Date().toISOString(),
+    type: 'analysis'
+  },
+  {
+    _id: 'data2',
+    title: 'Ethereum Layer 2 TVL Hits All-Time High',
+    content: 'Total Value Locked in Ethereum Layer 2 solutions reaches new ATH of $45B, driven by Arbitrum and Optimism growth. Base chain also shows strong momentum.',
+    author: 'Defi Insider',
+    imageUrl: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=800&auto=format&fit=crop',
+    createdAt: new Date().toISOString(),
+    type: 'analysis'
+  }
+];
+
+// Dummy data for research updates
+const dummyResearchData = {
+  research: [
+    {
+      _id: 'data1',
+      title: 'Order flow and cryptocurrency returns',
+      description: 'This study examines the information content of order flow on cryptocurrency returns.',
+      author: 'Kucing Malam',
+      tags: ['Order-Flow', 'Market Cycles', 'Halving', 'Machine Learning'],
+      link: 'https://www.sciencedirect.com/science/article/pii/S1386418126000029',
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: 'data2',
+      title: 'Analyzing the Economic Impact of Decentralization on Users',
+      description: 'This study models the final price paid by users of decentralized ledgers as a result of a two-stage game between miners and users.',
+      author: 'GOLD$1',
+      tags: ['Blockchain', 'Cryptocurrency', 'Decentralization', 'Equilibrium' 'Analysis', 'Tullock'],
+      link: 'https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITCS.2026.93',
+      createdAt: new Date().toISOString()
+    }
+  ]
+};
+
 export default function Home() {
   const [activeModule, setActiveModule] = useState<string>('market');
-  const [showTradingSignalForm, setShowTradingSignalForm] = useState(false);
-  const [showMarketUpdateForm, setShowMarketUpdateForm] = useState(false);
-  const [uploadingMarketImage, setUploadingMarketImage] = useState(false);
-  const [marketUpdatePreviewError, setMarketUpdatePreviewError] = useState(false);
   
   // Notification modal state
   const [notification, setNotification] = useState({
@@ -45,65 +123,12 @@ export default function Home() {
     title: '',
     message: ''
   });
-  const [tradingSignalForm, setTradingSignalForm] = useState({
-    author: '',
-    asset: '',
-    direction: 'LONG',
-    tradingStyle: 'swing-trade',
-    conviction: 5,
-    entryPrice: '',
-    stopLoss: '',
-    takeProfit1: '',
-    takeProfit2: '',
-    takeProfit3: '',
-    reasoning: '',
-    image: ''
-  });
-  const [marketUpdateForm, setMarketUpdateForm] = useState({
-    title: '',
-    content: '',
-    imageUrl: '',
-    author: ''
-  });
-
-  const handleMarketUpdateImageUpload = async (file: File) => {
-    if (!file) return;
-    setUploadingMarketImage(true);
-    showNotification('loading', 'Uploading Image', 'Uploading image to ImgBB...');
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-
-      const res = await fetch('/api/upload/imgbb', { method: 'POST', body: fd });
-      const json = (await res.json().catch(() => null)) as any;
-      if (!res.ok || !json?.success || !json?.data?.url) {
-        showNotification('error', 'Upload Failed', json?.error || 'Failed to upload image.');
-        return;
-      }
-
-      setMarketUpdateForm((prev) => ({ ...prev, imageUrl: String(json.data.url) }));
-  setMarketUpdatePreviewError(false);
-      showNotification('success', 'Upload Complete', 'Image uploaded successfully.');
-    } catch {
-      showNotification('error', 'Network Error', 'Failed to upload image. Please try again.');
-    } finally {
-      setUploadingMarketImage(false);
-    }
-  };
 
   // Fetch market data for trading signals
   const { data: marketData } = useSWR('/api/global-market', fetcher, { refreshInterval: 60000 });
 
   // Fetch current user (for submissions author)
   const { data: meData } = useSWR('/api/auth/me', fetcher);
-
-  // Auto-fill author from session (still editable in the form)
-  useEffect(() => {
-    const meUser = meData?.success ? meData.user : null;
-    const suggested = meUser?.username || meUser?.email;
-    if (!suggested) return;
-    setMarketUpdateForm((prev) => (prev.author ? prev : { ...prev, author: String(suggested) }));
-  }, [meData]);
 
   // Allow deep-linking to a specific module, e.g. /?module=news
   useEffect(() => {
@@ -119,17 +144,17 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch trading signals from database
-  const { data: tradingSignalsData, mutate: mutateTradingSignals } = useSWR('/api/trading-signals', fetcher, { refreshInterval: 60000 });
+  // Fetch trading signals from database or use dummy data
+  const { data: tradingSignalsData } = useSWR('/api/trading-signals', fetcher, { refreshInterval: 60000 });
+  
+  // Fetch market updates from database or use dummy data
+  const { data: marketUpdatesData } = useSWR('/api/market-update', fetcher, { refreshInterval: 60000 });
 
-  // Fetch market updates from database
-  const { data: marketUpdatesData, mutate: mutateMarketUpdates } = useSWR('/api/market-update', fetcher, { refreshInterval: 60000 });
-
-  // Fetch research papers from database
+  // Fetch research papers from database or use dummy data
   const { data: researchData } = useSWR('/api/research', fetcher, { refreshInterval: 300000 });
 
-  // Transform trading signals data for UI
-  const tradingSignals = (tradingSignalsData?.data || []).map((signal: any) => ({
+  // Transform trading signals data for UI - combine API data with dummy data
+  const apiSignals = (tradingSignalsData?.data || []).map((signal: any) => ({
     ...signal,
     icon: signal.signal === 'LONG' ? faArrowUp : faArrowDown,
     color: signal.signal === 'LONG' ? 'text-terminal-success' : 'text-terminal-danger',
@@ -144,6 +169,34 @@ export default function Home() {
     tp3: signal.takeProfit3
   }));
 
+  // Combine API signals with dummy signals
+  const tradingSignals = [...apiSignals, ...dummyTradingSignals.map(signal => ({
+    ...signal,
+    icon: signal.signal === 'LONG' ? faArrowUp : faArrowDown,
+    color: signal.signal === 'LONG' ? 'text-terminal-success' : 'text-terminal-danger',
+    direction: signal.signal,
+    strength: `Author: ${signal.author}`,
+    reason: `Conviction: ${signal.conviction}/10`,
+    status: signal.signalStatus,
+    entry: signal.entry,
+    sl: signal.stopLoss,
+    tp1: signal.takeProfit1,
+    tp2: signal.takeProfit2,
+    tp3: signal.takeProfit3
+  }))];
+
+  // Combine API market updates with dummy data
+  const apiMarketUpdates = marketUpdatesData?.data || [];
+  const marketUpdates = {
+    data: [...apiMarketUpdates, ...dummyMarketUpdates]
+  };
+
+  // Combine API research with dummy data
+  const apiResearch = researchData?.research || [];
+  const combinedResearchData = {
+    research: [...apiResearch, ...dummyResearchData.research]
+  };
+
   // Notification helper function
   const showNotification = (type: 'success' | 'error' | 'warning' | 'info' | 'loading', title: string, message: string) => {
     setNotification({
@@ -156,121 +209,6 @@ export default function Home() {
 
   const closeNotification = () => {
     setNotification(prev => ({ ...prev, isOpen: false }));
-  };
-
-  // Handle trading signal form submission
-  const handleTradingSignalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Show loading notification
-    showNotification('loading', 'Submitting Signal', 'Please wait while we process your trading signal...');
-    
-    try {
-      const response = await fetch('/api/trading-signals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tradingSignalForm),
-      });
-
-      if (response.ok) {
-        showNotification(
-          'success', 
-          'Signal Submitted Successfully!', 
-          'Your trading signal has been submitted for admin review. You will be notified once it\'s approved and published.'
-        );
-        setShowTradingSignalForm(false);
-        setTradingSignalForm({
-          author: '',
-          asset: '',
-          direction: 'LONG',
-          tradingStyle: 'swing-trade',
-          conviction: 5,
-          entryPrice: '',
-          stopLoss: '',
-          takeProfit1: '',
-          takeProfit2: '',
-          takeProfit3: '',
-          reasoning: '',
-          image: ''
-        });
-      } else {
-        const errorData = await response.json();
-        showNotification(
-          'error', 
-          'Submission Failed', 
-          errorData.error || 'Failed to submit trading signal. Please check your input and try again.'
-        );
-      }
-    } catch (error) {
-      showNotification(
-        'error', 
-        'Network Error', 
-        'Failed to submit trading signal. Please check your internet connection and try again.'
-      );
-    }
-  };
-
-  // Handle market update form submission
-  const handleMarketUpdateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Show loading notification
-    showNotification('loading', 'Submitting Update', 'Please wait while we process your market update...');
-    
-    try {
-      const meUser = meData?.success ? meData.user : null;
-      const author = marketUpdateForm.author?.trim() || meUser?.username || meUser?.email;
-      if (!author) {
-        showNotification('error', 'Submission Failed', 'Author / Name is required.');
-        return;
-      }
-
-      const response = await fetch('/api/market-update', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: marketUpdateForm.title,
-          content: marketUpdateForm.content,
-          author,
-          type: 'analysis',
-          imageUrl: marketUpdateForm.imageUrl || undefined,
-        }),
-      });
-
-      if (response.ok) {
-        showNotification(
-          'success', 
-          'Update Submitted Successfully!', 
-          'Your market update has been submitted for admin review. You will be notified once it\'s approved and published.'
-        );
-        setShowMarketUpdateForm(false);
-        setMarketUpdateForm({
-          title: '',
-          content: '',
-          imageUrl: '',
-          author: ''
-        });
-  setMarketUpdatePreviewError(false);
-        mutateMarketUpdates();
-      } else {
-        const errorData = await response.json();
-        showNotification(
-          'error', 
-          'Submission Failed', 
-          errorData.error || 'Failed to submit market update. Please check your input and try again.'
-        );
-      }
-    } catch (error) {
-      showNotification(
-        'error', 
-        'Network Error', 
-        'Failed to submit market update. Please check your internet connection and try again.'
-      );
-    }
   };
 
   const renderActiveModule = () => {
@@ -290,13 +228,6 @@ export default function Home() {
                     <FontAwesomeIcon icon={faSignal} className="w-4 h-4 mr-2" />
                     Trading Signals
                   </h3>
-                  <button
-                    onClick={() => setShowTradingSignalForm(true)}
-                    className="flex items-center space-x-1 text-xs bg-terminal-accent text-black px-2 py-1 rounded hover:bg-terminal-accent/80 transition-colors"
-                  >
-                    <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
-                    <span>Add Signal</span>
-                  </button>
                 </div>
                 <p className="text-xs text-gray-400 mb-4 leading-relaxed">
                   Selalu ingat bahwa trading futures memiliki risiko yang sangat tinggi. Seluruh chart, analisis, atau pandangan yang saya bagikan bukan merupakan ajakan atau saran investasi. Semua hanyalah hasil dari analisis pribadi yang bisa saja salah.<br/><br/>
@@ -368,7 +299,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="text-center text-gray-400 text-sm py-8">
-                    No trading signals available. Be the first to add one!
+                    No trading signals available.
                   </div>
                 )}
               </div>
@@ -380,18 +311,11 @@ export default function Home() {
                     <FontAwesomeIcon icon={faSignal} className="w-4 h-4 mr-2" />
                     Market Update
                   </h3>
-                  <button
-                    onClick={() => setShowMarketUpdateForm(true)}
-                    className="flex items-center space-x-1 text-xs bg-terminal-accent text-black px-2 py-1 rounded hover:bg-terminal-accent/80 transition-colors"
-                  >
-                    <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
-                    <span>Add Update</span>
-                  </button>
                 </div>
                 
-        {Array.isArray(marketUpdatesData?.data) && marketUpdatesData.data.length > 0 ? (
+                {Array.isArray(marketUpdates?.data) && marketUpdates.data.length > 0 ? (
                   <div className="flex gap-4 overflow-x-auto pb-2">
-                    {marketUpdatesData.data.map((update: any, index: number) => {
+                    {marketUpdates.data.map((update: any, index: number) => {
                       const updateId = update?._id ?? update?.id;
                       const Wrapper: any = updateId ? Link : 'div';
                       const wrapperProps = updateId
@@ -473,7 +397,7 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="text-center text-gray-400 text-sm py-8">
-                    No market updates available. Be the first to share market insights!
+                    No market updates available.
                   </div>
                 )}
               </div>
@@ -487,17 +411,17 @@ export default function Home() {
                   </h3>
                   <div className="flex items-center gap-2">
                     <div className="text-xs text-gray-500">
-                      {researchData ? `${researchData?.research?.length || 0} papers` : 'Loading...'}
+                      {combinedResearchData ? `${combinedResearchData?.research?.length || 0} papers` : 'Loading...'}
                     </div>
                   </div>
                 </div>
-                {!researchData ? (
+                {!combinedResearchData ? (
                   <div className="text-center text-gray-400 text-sm py-4">
                     <div className="animate-pulse">Loading research papers...</div>
                   </div>
-                ) : researchData?.research?.length > 0 ? (
+                ) : combinedResearchData?.research?.length > 0 ? (
                   <div className="space-y-3">
-                    {researchData.research.slice(0, 3).map((research: any, index: number) => (
+                    {combinedResearchData.research.slice(0, 3).map((research: any, index: number) => (
                       <div key={research._id || index} className="bg-terminal-panel rounded-lg p-3 border border-terminal-border">
                         <div className="text-sm font-medium text-terminal-accent mb-2">
                           📊 {research.title}
@@ -537,14 +461,14 @@ export default function Home() {
                         </div>
                       </div>
                     ))}
-                    {researchData.research.length > 3 && (
+                    {combinedResearchData.research.length > 3 && (
                       <div className="text-center pt-2">
                         <a 
                           href="#research"
                           onClick={() => setActiveModule('research')}
                           className="text-xs text-terminal-accent hover:text-terminal-accent/80 cursor-pointer"
                         >
-                          View all {researchData.research.length} research papers →
+                          View all {combinedResearchData.research.length} research papers →
                         </a>
                       </div>
                     )}
@@ -554,14 +478,8 @@ export default function Home() {
                     <div className="mb-2">📚</div>
                     <div className="font-medium mb-1">No research papers yet</div>
                     <div className="text-xs">
-                      Be the first to submit research papers for the community!
+                      Research papers will appear here when available.
                     </div>
-                    <button
-                      onClick={() => setActiveModule('research')}
-                      className="mt-3 text-xs bg-terminal-accent/10 text-terminal-accent px-3 py-1 rounded hover:bg-terminal-accent/20 transition-colors"
-                    >
-                      Submit Research →
-                    </button>
                   </div>
                 )}
               </div>
@@ -690,364 +608,7 @@ export default function Home() {
         {renderActiveModule()}
       </main>
 
-  <SiteFooter/>
-
-      {/* Trading Signal Form Modal */}
-      {showTradingSignalForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-terminal-bg border border-terminal-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-terminal-accent">Submit Trading Signal</h2>
-                <button
-                  onClick={() => setShowTradingSignalForm(false)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <FontAwesomeIcon icon={faMinus} className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={handleTradingSignalSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Author / Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.author}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, author: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                      placeholder="Your name or handle"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Asset Symbol *
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.asset}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, asset: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                      placeholder="BTC, ETH, SOL..."
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Direction *
-                    </label>
-                    <select
-                      value={tradingSignalForm.direction}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, direction: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      required
-                    >
-                      <option value="LONG">LONG</option>
-                      <option value="SHORT">SHORT</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Trading Style *
-                    </label>
-                    <select
-                      value={tradingSignalForm.tradingStyle}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, tradingStyle: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      required
-                    >
-                      <option value="swing-trade">Swing Trade</option>
-                      <option value="scalping">Scalping</option>
-                      <option value="position-trading">Position Trading</option>
-                      <option value="long-term-investing">Long Term Investing</option>
-                      <option value="trend-following">Trend Following</option>
-                      <option value="mean-reversion">Mean Reversion</option>
-                      <option value="range-trading">Range Trading</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Conviction (1-10) *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={tradingSignalForm.conviction}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, conviction: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Entry Price *
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.entryPrice}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, entryPrice: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      placeholder="$95,000 - $98,000"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Stop Loss *
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.stopLoss}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, stopLoss: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      placeholder="$92,000"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Take Profit 1 *
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.takeProfit1}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, takeProfit1: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      placeholder="$110,000"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Take Profit 2
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.takeProfit2}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, takeProfit2: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      placeholder="$125,000"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Take Profit 3
-                    </label>
-                    <input
-                      type="text"
-                      value={tradingSignalForm.takeProfit3}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, takeProfit3: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent"
-                      placeholder="$140,000"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-terminal-accent mb-2">
-                      Image Analysis (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      value={tradingSignalForm.image || ''}
-                      onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, image: e.target.value })}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                      placeholder="https://example.com/chart-image.jpg"
-                    />
-                    <p className="text-xs text-gray-400 mt-1">URL to chart or analysis image</p>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-terminal-accent mb-2">
-                    Reasoning / Analysis *
-                  </label>
-                  <textarea
-                    value={tradingSignalForm.reasoning}
-                    onChange={(e) => setTradingSignalForm({ ...tradingSignalForm, reasoning: e.target.value })}
-                    className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400 resize-none"
-                    rows={4}
-                    placeholder="Explain your analysis, chart patterns, indicators, or reasoning behind this signal..."
-                    required
-                  />
-                </div>
-
-                <div className="pt-4 border-t border-terminal-border">
-                  <p className="text-xs text-gray-400 mb-4">
-                    Signal will be reviewed by admin before being published.
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowTradingSignalForm(false)}
-                      className="px-6 py-2 text-sm border border-terminal-border rounded hover:bg-terminal-panel transition-colors text-gray-300"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-2 text-sm bg-terminal-accent text-black rounded hover:bg-terminal-accent/80 transition-colors font-medium"
-                    >
-                      Submit Signal
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Market Update Form Modal */}
-      {showMarketUpdateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-terminal-bg border border-terminal-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-terminal-accent">Submit Market Update</h2>
-                <button
-                  onClick={() => setShowMarketUpdateForm(false)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  <FontAwesomeIcon icon={faMinus} className="w-4 h-4" />
-                </button>
-              </div>
-
-              <form onSubmit={handleMarketUpdateSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-terminal-accent mb-2">Author / Name *</label>
-                  <input
-                    type="text"
-                    value={marketUpdateForm.author}
-                    onChange={(e) => setMarketUpdateForm({ ...marketUpdateForm, author: e.target.value })}
-                    className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                    placeholder="Your name or handle"
-                    required
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Auto-filled from your account; you can edit it.</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-terminal-accent mb-2">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    value={marketUpdateForm.title}
-                    onChange={(e) => setMarketUpdateForm({ ...marketUpdateForm, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                    placeholder="Market update title..."
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-terminal-accent mb-2">Image (optional)</label>
-                  <div className="space-y-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="w-full text-xs text-gray-300"
-                      disabled={uploadingMarketImage}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        handleMarketUpdateImageUpload(file);
-                        // allow choosing the same file again
-                        e.currentTarget.value = '';
-                      }}
-                    />
-
-                    <input
-                      type="url"
-                      value={marketUpdateForm.imageUrl}
-                      onChange={(e) => {
-                        setMarketUpdateForm({ ...marketUpdateForm, imageUrl: e.target.value });
-                        setMarketUpdatePreviewError(false);
-                      }}
-                      className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400"
-                      placeholder="Image URL (auto filled after upload, or paste URL here)"
-                    />
-
-                    {marketUpdateForm.imageUrl ? (
-                      <div className="rounded-md border border-terminal-border bg-terminal-panel p-2">
-                        <div className="text-xs text-gray-400 mb-2">Preview:</div>
-                        {marketUpdatePreviewError ? (
-                          <div className="text-xs text-gray-300">
-                            Preview failed to load. 
-                            <a
-                              href={marketUpdateForm.imageUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="ml-1 text-terminal-accent hover:underline"
-                            >
-                              Open image in new tab →
-                            </a>
-                          </div>
-                        ) : (
-                          <img
-                            src={proxiedImageSrc(marketUpdateForm.imageUrl)}
-                            alt="Market update preview"
-                            className="max-h-48 w-full object-contain rounded"
-                            onError={() => setMarketUpdatePreviewError(true)}
-                            onLoad={() => setMarketUpdatePreviewError(false)}
-                          />
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-terminal-accent mb-2">
-                    Content *
-                  </label>
-                  <textarea
-                    value={marketUpdateForm.content}
-                    onChange={(e) => setMarketUpdateForm({ ...marketUpdateForm, content: e.target.value })}
-                    className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-400 resize-none"
-                    rows={6}
-                    placeholder="Share your market insights, analysis, trends, or important updates..."
-                    required
-                  />
-                </div>
-
-                <div className="pt-4 border-t border-terminal-border">
-                  <p className="text-xs text-gray-400 mb-4">
-                    Market update will be reviewed by admin before being published.
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowMarketUpdateForm(false)}
-                      className="px-6 py-2 text-sm border border-terminal-border rounded hover:bg-terminal-panel transition-colors text-gray-300"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-2 text-sm bg-terminal-accent text-black rounded hover:bg-terminal-accent/80 transition-colors font-medium"
-                    >
-                      Submit Update
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <SiteFooter/>
 
       {/* Notification Modal */}
       <NotificationModal
