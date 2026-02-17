@@ -106,7 +106,7 @@ const dummyResearchData = {
       title: 'Analyzing the Economic Impact of Decentralization on Users',
       description: 'This study models the final price paid by users of decentralized ledgers as a result of a two-stage game between miners and users.',
       author: 'GOLD$1',
-      tags: ['Blockchain', 'Cryptocurrency', 'Decentralization', 'Equilibrium' 'Analysis', 'Tullock'],
+      tags: ['Blockchain', 'Cryptocurrency', 'Decentralization', 'Equilibrium', 'Analysis', 'Tullock'],
       link: 'https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITCS.2026.93',
       createdAt: new Date().toISOString()
     }
