@@ -133,7 +133,7 @@ const dummyMarketUpdates = [
     title: 'Solana Network Outage Resolved',
     content: 'Solana mainnet-beta experienced temporary block production halt for 20 minutes. Validators successfully upgraded and network is now operational.',
     author: 'Gadang99',
-    imageUrl: 'https://images.unsplash.com/photo-1642790551116-18e150f248e3?w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop',
     createdAt: new Date().toISOString(),
     type: 'news'
   }
