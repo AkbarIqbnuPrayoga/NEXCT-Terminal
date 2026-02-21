@@ -16,7 +16,8 @@ import {
   faFilter,
   faCoins,
   faCircle,
-  faSquare
+  faSquare,
+  faClock // Tambahkan icon clock
 } from '@fortawesome/free-solid-svg-icons';
 
 interface Coin {
@@ -42,6 +43,8 @@ export default function CoinMarketPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true); // State untuk toggle auto-refresh
+  const [countdown, setCountdown] = useState(15); // Countdown timer
 
   // Generate 100+ dummy coins
   const generateCoins = (): Coin[] => {
@@ -185,9 +188,39 @@ export default function CoinMarketPage() {
       setCoins(generateCoins());
       setLastUpdated(new Date());
       setLoading(false);
+      setCountdown(15); // Reset countdown setelah refresh
     }, 500);
   };
 
+  // Auto refresh every 15 seconds
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let countdownInterval: NodeJS.Timeout;
+
+    if (autoRefreshEnabled) {
+      // Countdown timer
+      countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            return 15;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Refresh data every 15 seconds
+      interval = setInterval(() => {
+        refreshData();
+      }, 15000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+      if (countdownInterval) clearInterval(countdownInterval);
+    };
+  }, [autoRefreshEnabled]); // Re-run when autoRefreshEnabled changes
+
+  // Initial load
   useEffect(() => {
     refreshData();
   }, []);
@@ -279,6 +312,22 @@ export default function CoinMarketPage() {
             </p>
           </div>
           <div className="flex items-center space-x-3">
+            {/* Auto-refresh indicator and toggle */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
+                  autoRefreshEnabled 
+                    ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
+                    : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+                }`}
+                title={autoRefreshEnabled ? 'Auto-refresh on' : 'Auto-refresh off'}
+              >
+                <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
+                <span>{autoRefreshEnabled ? `${countdown}s` : 'Off'}</span>
+              </button>
+            </div>
+            
             <div className="text-xs text-gray-500">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </div>
