@@ -46,8 +46,9 @@ export default function LearningPage() {
 
   // Generate dummy data on mount
   useEffect(() => {
-    // 3 Dummy Learning Resources
+    // 9 Dummy Learning Resources (3 untuk setiap kategori)
     const dummyLearning: LearningResource[] = [
+      // BEGINNER COURSES (3)
       {
         id: '1',
         title: 'Cryptocurrency Fundamentals: From Zero to Hero',
@@ -64,6 +65,36 @@ export default function LearningPage() {
       },
       {
         id: '2',
+        title: 'Blockchain Basics: Understanding Distributed Ledger Technology',
+        description: 'Learn how blockchain works, from blocks and chains to consensus mechanisms and cryptographic hashing.',
+        link: 'https://blockchain101.org/basics',
+        author: 'Dr. Sarah Johnson',
+        category: 'beginner',
+        difficulty: 1,
+        duration: '3 hours',
+        rating: 4.7,
+        students: 12350,
+        imageUrl: '/learning/blockchain-basics.jpg',
+        tags: ['blockchain', 'distributed ledger', 'consensus', 'hashing']
+      },
+      {
+        id: '3',
+        title: 'Crypto Wallets & Security: Protecting Your Digital Assets',
+        description: 'Step-by-step guide to setting up and securing cryptocurrency wallets, understanding private keys, and avoiding common scams.',
+        link: 'https://cryptosecurity.org/wallets',
+        author: 'Maria Garcia',
+        category: 'beginner',
+        difficulty: 1,
+        duration: '2 hours',
+        rating: 4.9,
+        students: 9870,
+        imageUrl: '/learning/wallet-security.jpg',
+        tags: ['wallets', 'security', 'private keys', 'scams']
+      },
+
+      // INTERMEDIATE COURSES (3)
+      {
+        id: '4',
         title: 'DeFi Mastery: Lending, Borrowing & Yield Farming',
         description: 'Deep dive into decentralized finance protocols, understanding liquidity pools, impermanent loss, and maximizing yields safely.',
         link: 'https://defiacademy.com/mastery',
@@ -77,7 +108,37 @@ export default function LearningPage() {
         tags: ['defi', 'lending', 'yield farming', 'uniswap']
       },
       {
-        id: '3',
+        id: '5',
+        title: 'Technical Analysis for Cryptocurrency Trading',
+        description: 'Master chart reading, candlestick patterns, indicators, and trend analysis specifically for crypto markets.',
+        link: 'https://cryptotrading.io/technical-analysis',
+        author: 'Mike Thompson',
+        category: 'intermediate',
+        difficulty: 2,
+        duration: '5 hours',
+        rating: 4.6,
+        students: 6540,
+        imageUrl: '/learning/technical-analysis.jpg',
+        tags: ['technical analysis', 'trading', 'charts', 'indicators']
+      },
+      {
+        id: '6',
+        title: 'Smart Contract Development: Building Your First DApp',
+        description: 'Learn Solidity programming, smart contract deployment, and building decentralized applications on Ethereum.',
+        link: 'https://dappuniversity.com/solidity',
+        author: 'Gregory Anderson',
+        category: 'intermediate',
+        difficulty: 2,
+        duration: '8 hours',
+        rating: 4.8,
+        students: 5430,
+        imageUrl: '/learning/smart-contracts.jpg',
+        tags: ['solidity', 'smart contracts', 'dapps', 'ethereum']
+      },
+
+      // ADVANCED COURSES (3)
+      {
+        id: '7',
         title: 'On-Chain Analysis: Reading Blockchain Data Like a Pro',
         description: 'Advanced techniques for analyzing on-chain metrics, whale tracking, and using data to make informed trading decisions.',
         link: 'https://chainanalytics.io/pro-course',
@@ -89,10 +150,38 @@ export default function LearningPage() {
         students: 3450,
         imageUrl: '/learning/onchain.jpg',
         tags: ['onchain', 'analysis', 'whales', 'metrics']
+      },
+      {
+        id: '8',
+        title: 'MEV Strategies: Maximal Extractable Value in Ethereum',
+        description: 'Advanced study of MEV, arbitrage opportunities, sandwich attacks, and how to implement MEV strategies.',
+        link: 'https://mevstrategies.io/advanced',
+        author: 'Dr. Wei Zhang',
+        category: 'advanced',
+        difficulty: 3,
+        duration: '7 hours',
+        rating: 4.5,
+        students: 2100,
+        imageUrl: '/learning/mev.jpg',
+        tags: ['mev', 'arbitrage', 'ethereum', 'flashbots']
+      },
+      {
+        id: '9',
+        title: 'Quantitative Trading Strategies for Crypto Markets',
+        description: 'Build and backtest algorithmic trading strategies using Python, statistical analysis, and machine learning.',
+        link: 'https://quantcrypto.io/strategies',
+        author: 'David Kumar',
+        category: 'advanced',
+        difficulty: 3,
+        duration: '10 hours',
+        rating: 4.8,
+        students: 1870,
+        imageUrl: '/learning/quant-trading.jpg',
+        tags: ['quantitative', 'trading', 'python', 'algorithms']
       }
     ];
 
-    // 6 Dummy Academy Resources
+    // 9 Dummy Academy Resources (tambah 3)
     const dummyAcademy: AcademyResource[] = [
       {
         id: 'a1',
@@ -171,6 +260,46 @@ export default function LearningPage() {
         lessons: 20,
         imageUrl: '/academy/defi-design.jpg',
         tags: ['defi', 'tokenomics', 'protocol design', 'economics']
+      },
+      // TAMBAHAN 3 ACADEMY RESOURCES
+      {
+        id: 'a7',
+        title: 'Zero-Knowledge Proofs: From Theory to Implementation',
+        deskripsi: 'Comprehensive course on ZK-proofs, zk-SNARKs, and zk-STARKs. Learn how to implement privacy-preserving protocols in blockchain applications.',
+        link: 'https://zkacademy.io/implementation',
+        author: 'Dr. Elena Petrova',
+        type: 'advanced course',
+        duration: '10 weeks',
+        level: 'advanced',
+        lessons: 40,
+        imageUrl: '/academy/zk-proofs.jpg',
+        tags: ['zkp', 'privacy', 'cryptography', 'snarks']
+      },
+      {
+        id: 'a8',
+        title: 'Layer 2 Scaling Solutions: Rollups, Sidechains & State Channels',
+        deskripsi: 'Deep dive into all major Layer 2 solutions. Learn how Optimistic Rollups, ZK-Rollups, and sidechains work and when to use each.',
+        link: 'https://l2academy.io/scaling',
+        author: 'Vitalik Buterin',
+        type: 'technical course',
+        duration: '6 weeks',
+        level: 'intermediate',
+        lessons: 24,
+        imageUrl: '/academy/layer2.jpg',
+        tags: ['layer2', 'rollups', 'scaling', 'ethereum']
+      },
+      {
+        id: 'a9',
+        title: 'Crypto Compliance and Regulation: A Global Perspective',
+        deskripsi: 'Navigate the complex world of crypto regulations. Learn about KYC/AML requirements, tax implications, and compliance frameworks worldwide.',
+        link: 'https://cryptocompliance.academy/global',
+        author: 'Carol Martinez',
+        type: 'professional course',
+        duration: '4 weeks',
+        level: 'intermediate',
+        lessons: 16,
+        imageUrl: '/academy/compliance.jpg',
+        tags: ['regulation', 'compliance', 'kyc', 'aml', 'tax']
       }
     ];
 
@@ -457,8 +586,9 @@ export default function LearningPage() {
                       {item.type}
                     </span>
                     <span className={`px-2 py-1 text-xs rounded ${
-                      item.level === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                      item.level === 'beginner' || item.level === 'beginner to advanced' ? 'bg-green-500/20 text-green-400' :
                       item.level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                      item.level === 'all levels' ? 'bg-blue-500/20 text-blue-400' :
                       'bg-red-500/20 text-red-400'
                     }`}>
                       {item.level}
