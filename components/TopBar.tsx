@@ -146,7 +146,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
           <span className="text-terminal-danger font-bold text-xs uppercase flex-shrink-0 mr-4">Breaking</span>
           <div className="overflow-hidden flex-1 relative" style={{ height: '24px' }}>
             {isClient && (
-              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 40s linear infinite' }}>
+              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 60s linear infinite' }}>
                 {newsData?.results?.slice(0, 8).map((article: any, index: number) => (
                   <span key={index} className="inline-block text-sm text-gray-400 mr-8">
                     {article.title}
@@ -169,7 +169,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
           <FontAwesomeIcon icon={faSignal} className="w-4 h-4 text-terminal-accent flex-shrink-0 mr-4" />
           <div className="overflow-hidden flex-1 relative" style={{ height: '28px' }}>
             {isClient && coinData?.success ? (
-              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 35s linear infinite' }}>
+              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 55s linear infinite' }}>
                 {coinData.data.map((coin: any, index: number) => (
                   <div key={index} className="inline-flex items-center space-x-2 mr-6">
                     <img
@@ -235,7 +235,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
         
         .ticker-animation {
           display: inline-flex;
-          animation: ticker 40s linear infinite;
+          animation: ticker 60s linear infinite;
           will-change: transform;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
@@ -250,7 +250,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
         /* Mobile optimization */
         @media (max-width: 768px) {
           .ticker-animation {
-            animation-duration: 35s;
+            animation-duration: 55s;
           }
         }
       `}</style>
