@@ -293,7 +293,21 @@ export default function ResearchPage() {
         readTime: '18 min',
         citations: 89,
         institution: 'Lido DAO'
-      }
+      },
+      {
+      id: '21',
+      title: 'The Merge: Ethereum\'s Transition to Proof-of-Stake',
+      description: 'Comprehensive analysis of Ethereum\'s historic transition from Proof-of-Work to Proof-of-Stake, examining technical implementation, economic implications, and network security post-merge.',
+      link: 'https://ethereumresearch.org/merge-analysis',
+      pdfUrl: 'https://ethereumresearch.org/merge-analysis.pdf',
+      author: 'Tim Beiko & Ethereum Foundation Research',
+      category: 'Ethereum',
+      date: '2024-03-20',
+      tags: ['ethereum', 'the merge', 'proof-of-stake', 'consensus', 'upgrade'],
+      readTime: '35 min',
+      citations: 567,
+      institution: 'Ethereum Foundation'
+    }
     ];
 
     setResearchData(dummyResearch);
