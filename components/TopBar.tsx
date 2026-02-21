@@ -27,9 +27,15 @@ interface TopBarProps {
 
 export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
+
+  // Set isClient to true when component mounts (to avoid hydration issues)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   function goToModule(moduleId: string) {
     if (pathname === '/' || pathname === '' || pathname == null) {
@@ -134,73 +140,120 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
         )}
       </div>
 
-      {/* Breaking News Ticker */}
-      <div className="bg-terminal-bg border-t border-terminal-border px-4 py-2 overflow-hidden">
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <span className="text-terminal-danger font-bold text-xs uppercase flex-shrink-0">Breaking</span>
-          <div className="relative overflow-hidden flex-1">
-            <div className="flex animate-marquee md:animate-marquee whitespace-nowrap text-sm text-gray-400">
-              {newsData?.results?.slice(0, 5).map((article: any, index: number) => (
-                <span key={index} className="mr-8 md:mr-12 inline-block">
-                  {article.title}
-                </span>
-              ))}
-              {newsData?.results?.slice(0, 5).map((article: any, index: number) => (
-                <span key={`repeat-${index}`} className="mr-8 md:mr-12 inline-block">
-                  {article.title}
-                </span>
-              ))}
-            </div>
+      {/* Breaking News Ticker - FIXED FOR MOBILE */}
+      <div className="bg-terminal-bg border-t border-terminal-border overflow-hidden w-full">
+        <div className="flex items-center px-4 py-2">
+          <span className="text-terminal-danger font-bold text-xs uppercase flex-shrink-0 mr-4">Breaking</span>
+          <div className="overflow-hidden flex-1 relative" style={{ height: '24px' }}>
+            {isClient && (
+              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 25s linear infinite' }}>
+                {newsData?.results?.slice(0, 8).map((article: any, index: number) => (
+                  <span key={index} className="inline-block text-sm text-gray-400 mr-8">
+                    {article.title}
+                  </span>
+                ))}
+                {newsData?.results?.slice(0, 8).map((article: any, index: number) => (
+                  <span key={`repeat-${index}`} className="inline-block text-sm text-gray-400 mr-8">
+                    {article.title}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Coin Prices Ticker */}
-      <div className="bg-terminal-bg border-t border-terminal-border px-4 py-2 overflow-hidden">
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <FontAwesomeIcon icon={faSignal} className="w-4 h-4 text-terminal-accent flex-shrink-0" />
-          <div className="flex-1 overflow-hidden">
-            <div className="animate-marquee md:animate-marquee whitespace-nowrap text-sm text-gray-400 flex items-center">
-              {coinData?.success ? (
-                <>
-                  {coinData.data.map((coin: any, index: number) => (
-                    <div key={index} className="flex items-center space-x-1 md:space-x-2 mr-4 md:mr-8 inline-flex">
-                      <img
-                        src={coin.image}
-                        alt={coin.symbol}
-                        className="w-3 h-3 md:w-4 md:h-4 rounded-full"
-                      />
-                      <span className="px-1 text-xs md:text-sm">
-                        {coin.symbol.toUpperCase()}: ${(coin.current_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
-                        <span className={`ml-1 ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          ({coin.price_change_percentage_24h >= 0 ? '+' : ''}{(coin.price_change_percentage_24h || 0).toFixed(2)}%)
-                        </span>
+      {/* Coin Prices Ticker - FIXED FOR MOBILE */}
+      <div className="bg-terminal-bg border-t border-terminal-border overflow-hidden w-full">
+        <div className="flex items-center px-4 py-2">
+          <FontAwesomeIcon icon={faSignal} className="w-4 h-4 text-terminal-accent flex-shrink-0 mr-4" />
+          <div className="overflow-hidden flex-1 relative" style={{ height: '28px' }}>
+            {isClient && coinData?.success ? (
+              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 30s linear infinite' }}>
+                {coinData.data.map((coin: any, index: number) => (
+                  <div key={index} className="inline-flex items-center space-x-2 mr-6">
+                    <img
+                      src={coin.image}
+                      alt={coin.symbol}
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                    <span className="text-sm whitespace-nowrap">
+                      <span className="text-gray-300">{coin.symbol.toUpperCase()}:</span>
+                      <span className="text-terminal-accent ml-1">
+                        ${(coin.current_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
-                    </div>
-                  ))}
-                  {coinData.data.map((coin: any, index: number) => (
-                    <div key={`repeat-${index}`} className="flex items-center space-x-1 md:space-x-2 mr-4 md:mr-8 inline-flex">
-                      <img
-                        src={coin.image}
-                        alt={coin.symbol}
-                        className="w-3 h-3 md:w-4 md:h-4 rounded-full"
-                      />
-                      <span className="px-1 text-xs md:text-sm">
-                        {coin.symbol.toUpperCase()}: ${(coin.current_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
-                        <span className={`ml-1 ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          ({coin.price_change_percentage_24h >= 0 ? '+' : ''}{(coin.price_change_percentage_24h || 0).toFixed(2)}%)
-                        </span>
+                      <span className={`ml-1 ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        ({coin.price_change_percentage_24h >= 0 ? '+' : ''}{(coin.price_change_percentage_24h || 0).toFixed(2)}%)
                       </span>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <span className="text-xs md:text-sm">Loading coin prices...</span>
-              )}
-            </div>
+                    </span>
+                  </div>
+                ))}
+                {coinData.data.map((coin: any, index: number) => (
+                  <div key={`repeat-${index}`} className="inline-flex items-center space-x-2 mr-6">
+                    <img
+                      src={coin.image}
+                      alt={coin.symbol}
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                    <span className="text-sm whitespace-nowrap">
+                      <span className="text-gray-300">{coin.symbol.toUpperCase()}:</span>
+                      <span className="text-terminal-accent ml-1">
+                        ${(coin.current_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                      <span className={`ml-1 ${coin.price_change_percentage_24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        ({coin.price_change_percentage_24h >= 0 ? '+' : ''}{(coin.price_change_percentage_24h || 0).toFixed(2)}%)
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-400">Loading coin prices...</div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Add keyframe animations in a style tag */}
+      <style jsx>{`
+        @keyframes ticker {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .ticker-animation {
+          display: inline-flex;
+          animation: ticker 30s linear infinite;
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+        }
+        
+        .ticker-animation:hover {
+          animation-play-state: paused;
+        }
+        
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+          .ticker-animation {
+            animation-duration: 20s;
+          }
+        }
+      `}</style>
     </header>
   );
 }
