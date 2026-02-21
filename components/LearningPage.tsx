@@ -1,81 +1,205 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignal, faTimes, faPlus, faSearch, faChevronLeft, faChevronRight, faImage, faFilePdf } from '@fortawesome/free-solid-svg-icons';
-import useSWR from 'swr';
+import { faSignal, faTimes, faPlus, faSearch, faChevronLeft, faChevronRight, faImage, faFilePdf, faStar, faClock, faUserGraduate } from '@fortawesome/free-solid-svg-icons';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+interface LearningResource {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  author: string;
+  category: string;
+  difficulty: number;
+  duration: string;
+  rating: number;
+  students: number;
+  imageUrl?: string;
+  tags: string[];
+}
+
+interface AcademyResource {
+  id: string;
+  title: string;
+  deskripsi: string;
+  link: string;
+  author: string;
+  type: string;
+  duration: string;
+  level: string;
+  lessons: number;
+  imageUrl?: string;
+  tags: string[];
+}
 
 export default function LearningPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Image upload states
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  // Dummy Learning Data
+  const [learningData, setLearningData] = useState<LearningResource[]>([]);
+  const [academyData, setAcademyData] = useState<AcademyResource[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Learning form state
-  const [learningForm, setLearningForm] = useState({ 
-    title: '',
-    description: '',
-    link: '', 
-    author: '', 
-    pdfUrl: '',
-    imageUrl: '',
-    category: 'beginner',
-    difficulty: 1,
-    tags: [],
-    messageId: '' 
-  });
-  const [learningSubmitting, setLearningSubmitting] = useState(false);
-  const [learningSubmitMessage, setLearningSubmitMessage] = useState('');
-  const [learningSubmitError, setLearningSubmitError] = useState(false);
+  // Generate dummy data on mount
+  useEffect(() => {
+    // 3 Dummy Learning Resources
+    const dummyLearning: LearningResource[] = [
+      {
+        id: '1',
+        title: 'Cryptocurrency Fundamentals: From Zero to Hero',
+        description: 'Complete beginner\'s guide to understanding Bitcoin, blockchain technology, and how to make your first crypto purchase safely.',
+        link: 'https://crypto101.org/beginner-course',
+        author: 'James Cooper',
+        category: 'beginner',
+        difficulty: 1,
+        duration: '2.5 hours',
+        rating: 4.8,
+        students: 15420,
+        imageUrl: '/learning/crypto-basics.jpg',
+        tags: ['bitcoin', 'blockchain', 'wallets', 'exchanges']
+      },
+      {
+        id: '2',
+        title: 'DeFi Mastery: Lending, Borrowing & Yield Farming',
+        description: 'Deep dive into decentralized finance protocols, understanding liquidity pools, impermanent loss, and maximizing yields safely.',
+        link: 'https://defiacademy.com/mastery',
+        author: 'Sarah Chen',
+        category: 'intermediate',
+        difficulty: 2,
+        duration: '4 hours',
+        rating: 4.9,
+        students: 8760,
+        imageUrl: '/learning/defi.jpg',
+        tags: ['defi', 'lending', 'yield farming', 'uniswap']
+      },
+      {
+        id: '3',
+        title: 'On-Chain Analysis: Reading Blockchain Data Like a Pro',
+        description: 'Advanced techniques for analyzing on-chain metrics, whale tracking, and using data to make informed trading decisions.',
+        link: 'https://chainanalytics.io/pro-course',
+        author: 'Michael Rodriguez',
+        category: 'advanced',
+        difficulty: 3,
+        duration: '6 hours',
+        rating: 4.7,
+        students: 3450,
+        imageUrl: '/learning/onchain.jpg',
+        tags: ['onchain', 'analysis', 'whales', 'metrics']
+      }
+    ];
 
-  // Academy form state
-  const [academyForm, setAcademyForm] = useState({ 
-    title: '',
-    deskripsi: '',
-    link: '', 
-    author: '', 
-    pdfUrl: '',
-    imageUrl: '',
-    type: 'course',
-    tags: [],
-    messageId: '' 
-  });
-  const [academySubmitting, setAcademySubmitting] = useState(false);
-  const [academySubmitMessage, setAcademySubmitMessage] = useState('');
-  const [academySubmitError, setAcademySubmitError] = useState(false);
-  const [isAcademyModalOpen, setIsAcademyModalOpen] = useState(false);
+    // 6 Dummy Academy Resources
+    const dummyAcademy: AcademyResource[] = [
+      {
+        id: 'a1',
+        title: 'Blockchain Developer Bootcamp 2024',
+        deskripsi: 'Comprehensive program to become a blockchain developer. Learn Solidity, smart contract development, and dApp creation from scratch.',
+        link: 'https://academy.blockchaindev.com/bootcamp',
+        author: 'Dr. Anita Sharma',
+        type: 'course',
+        duration: '12 weeks',
+        level: 'beginner to advanced',
+        lessons: 48,
+        imageUrl: '/academy/dev-bootcamp.jpg',
+        tags: ['solidity', 'smart contracts', 'dapps', 'ethereum']
+      },
+      {
+        id: 'a2',
+        title: 'Cryptocurrency Trading Psychology',
+        deskripsi: 'Master the mental game of trading. Learn emotional control, risk management, and how to develop a winning trader mindset.',
+        link: 'https://tradingpsychology.academy',
+        author: 'Dr. Robert Kiyosaki',
+        type: 'course',
+        duration: '4 weeks',
+        level: 'all levels',
+        lessons: 16,
+        imageUrl: '/academy/trading-psychology.jpg',
+        tags: ['trading', 'psychology', 'mindset', 'risk management']
+      },
+      {
+        id: 'a3',
+        title: 'Technical Analysis Masterclass',
+        deskripsi: 'Learn to read charts like a professional. Covers candlestick patterns, indicators, support/resistance, and advanced charting techniques.',
+        link: 'https://technicalanalysis.academy/masterclass',
+        author: 'John Bollinger',
+        type: 'course',
+        duration: '8 weeks',
+        level: 'intermediate',
+        lessons: 32,
+        imageUrl: '/academy/technical-analysis.jpg',
+        tags: ['technical analysis', 'charts', 'indicators', 'trading']
+      },
+      {
+        id: 'a4',
+        title: 'NFT Creation and Marketing Guide',
+        deskripsi: 'Complete guide to creating, minting, and selling NFTs. Learn about different marketplaces, marketing strategies, and community building.',
+        link: 'https://nftacademy.io/guide',
+        author: 'Lisa Wang',
+        type: 'tutorial',
+        duration: '3 weeks',
+        level: 'beginner',
+        lessons: 12,
+        imageUrl: '/academy/nft-guide.jpg',
+        tags: ['nft', 'digital art', 'opensea', 'marketing']
+      },
+      {
+        id: 'a5',
+        title: 'Smart Contract Security Auditing',
+        deskripsi: 'Learn how to identify vulnerabilities in smart contracts. Hands-on exercises with real-world audit case studies and best practices.',
+        link: 'https://securityaudit.academy',
+        author: 'Trail of Bits Team',
+        type: 'advanced course',
+        duration: '6 weeks',
+        level: 'advanced',
+        lessons: 24,
+        imageUrl: '/academy/security.jpg',
+        tags: ['security', 'auditing', 'smart contracts', 'vulnerabilities']
+      },
+      {
+        id: 'a6',
+        title: 'DeFi Protocol Design and Economics',
+        deskripsi: 'Deep dive into the design principles behind major DeFi protocols. Understand tokenomics, governance, and sustainable yield mechanisms.',
+        link: 'https://defidesign.academy',
+        author: 'Andre Cronje',
+        type: 'research course',
+        duration: '5 weeks',
+        level: 'advanced',
+        lessons: 20,
+        imageUrl: '/academy/defi-design.jpg',
+        tags: ['defi', 'tokenomics', 'protocol design', 'economics']
+      }
+    ];
 
-  // Fetch learning items with category filter
-  const learningUrl = selectedCategory ? `/api/learning?category=${selectedCategory}` : '/api/learning';
-  const { data: learningData, error: learningError, mutate: mutateLearning } = useSWR(learningUrl, fetcher);
+    setLearningData(dummyLearning);
+    setAcademyData(dummyAcademy);
+    setLoading(false);
+  }, []);
 
-  // Fetch academy items
-  const { data: academyData, error: academyError, mutate: mutateAcademy } = useSWR('/api/academy', fetcher);
-
-  // Filtered and paginated learning data
+  // Filtered learning data
   const filteredLearningData = useMemo(() => {
-    if (!learningData?.data) return [];
-    let filtered = learningData.data;
+    let filtered = learningData;
+    
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter(item => item.category === selectedCategory);
+    }
     
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter((item: any) =>
-        item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.author?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(item =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
     return filtered;
-  }, [learningData, searchTerm]);
+  }, [learningData, searchTerm, selectedCategory]);
 
   const totalPages = Math.ceil(filteredLearningData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -90,154 +214,34 @@ export default function LearningPage() {
   // Handle category selection
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-    setSearchTerm(''); // Clear search when selecting category
+    setSearchTerm('');
     setCurrentPage(1);
   };
 
-  // Handle image selection
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+  // Get category stats
+  const getCategoryStats = (category: string) => {
+    return learningData.filter(item => item.category === category).length;
   };
 
-  // Handle image upload
-  const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage) return null;
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('image', selectedImage);
-      formData.append('name', `learning-${Date.now()}`);
-
-      const response = await fetch('/api/upload/image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.data.display_url;
-      }
-      throw new Error('Upload failed');
-    } catch (error) {
-      console.error('Image upload error:', error);
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  // Handle learning form submission
-  const handleLearningSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLearningSubmitting(true);
-    setLearningSubmitMessage('');
-    setLearningSubmitError(false);
-
-    try {
-      // Upload image if selected
-      let imageUrl = learningForm.imageUrl;
-      if (selectedImage) {
-        imageUrl = await uploadImage() || '';
-      }
-
-      const response = await fetch('/api/learning', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...learningForm,
-          imageUrl
-        }),
-      });
-
-      if (response.ok) {
-        setLearningSubmitMessage('Learning resource added successfully!');
-        setLearningForm({ 
-          title: '',
-          description: '',
-          link: '', 
-          author: '', 
-          pdfUrl: '',
-          imageUrl: '',
-          category: 'beginner',
-          difficulty: 1,
-          tags: [],
-          messageId: '' 
-        });
-        setSelectedImage(null);
-        setImagePreview(null);
-        mutateLearning(); // Refresh the learning list
-        setIsModalOpen(false); // Close modal on success
-      } else {
-        throw new Error('Failed to add learning resource');
-      }
-    } catch (error) {
-      setLearningSubmitError(true);
-      setLearningSubmitMessage('Error adding learning resource. Please try again.');
-    } finally {
-      setLearningSubmitting(false);
-    }
-  };
-
-  // Handle academy form submission
-  const handleAcademySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAcademySubmitting(true);
-    setAcademySubmitMessage('');
-    setAcademySubmitError(false);
-
-    try {
-      // Upload image if selected
-      let imageUrl = academyForm.imageUrl;
-      if (selectedImage) {
-        imageUrl = await uploadImage() || '';
-      }
-
-      const response = await fetch('/api/academy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...academyForm,
-          imageUrl
-        }),
-      });
-
-      if (response.ok) {
-        setAcademySubmitMessage('Academy resource added successfully!');
-        setAcademyForm({ 
-          title: '',
-          deskripsi: '',
-          link: '', 
-          author: '', 
-          pdfUrl: '',
-          imageUrl: '',
-          type: 'course',
-          tags: [],
-          messageId: '' 
-        });
-        setSelectedImage(null);
-        setImagePreview(null);
-        mutateAcademy(); // Refresh the academy list
-        setIsAcademyModalOpen(false); // Close modal on success
-      } else {
-        throw new Error('Failed to add academy resource');
-      }
-    } catch (error) {
-      setAcademySubmitError(true);
-      setAcademySubmitMessage('Error adding academy resource. Please try again.');
-    } finally {
-      setAcademySubmitting(false);
-    }
+  // Render stars for rating
+  const renderRating = (rating: number) => {
+    return (
+      <div className="flex items-center space-x-1">
+        {[...Array(5)].map((_, i) => (
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className={`w-3 h-3 ${i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-600'}`}
+          />
+        ))}
+        <span className="text-xs text-gray-400 ml-1">({rating})</span>
+      </div>
+    );
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Header */}
       <div className="terminal-panel mb-6">
         <h2 className="terminal-header text-2xl">🎓 Learning Center</h2>
         <p className="text-gray-400 text-sm mt-2">
@@ -245,153 +249,89 @@ export default function LearningPage() {
         </p>
       </div>
 
-      {/* Add Learning Resource Button */}
-      <div className="mb-6 flex items-center justify-between">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-terminal-accent text-black font-medium rounded hover:bg-terminal-accent/80 transition-colors flex items-center space-x-2"
-        >
-          <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-          <span>Add Learning Resource</span>
-        </button>
-        <div className="text-sm text-gray-400">
-          💡 Track your submission status in <strong className="text-terminal-accent">Submissions</strong> (ALT+6)
-        </div>
-      </div>
-
       {/* Learning Categories */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <button
           onClick={() => handleCategorySelect('beginner')}
-          className={`bg-terminal-bg rounded-lg border p-4 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
-            selectedCategory === 'beginner' ? 'border-terminal-accent' : 'border-terminal-border'
+          className={`bg-terminal-bg rounded-lg border p-6 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
+            selectedCategory === 'beginner' ? 'border-terminal-accent bg-terminal-accent/5' : 'border-terminal-border'
           }`}
         >
-          <div className="text-2xl mb-2">🌱</div>
-          <h3 className="text-sm font-semibold text-terminal-accent mb-1">Beginner</h3>
-          <p className="text-xs text-gray-400">Crypto basics, wallet setup, first investments</p>
-          <div className="mt-3 text-xs text-green-400">
-            {learningData?.stats?.beginner || 0} courses available
+          <div className="text-3xl mb-3">🌱</div>
+          <h3 className="text-sm font-semibold text-terminal-accent mb-2">Beginner</h3>
+          <p className="text-xs text-gray-400 mb-3">Crypto basics, wallet setup, first investments</p>
+          <div className="mt-2 text-xs text-green-400 font-medium">
+            {getCategoryStats('beginner')} courses available
           </div>
         </button>
 
         <button
           onClick={() => handleCategorySelect('intermediate')}
-          className={`bg-terminal-bg rounded-lg border p-4 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
-            selectedCategory === 'intermediate' ? 'border-terminal-accent' : 'border-terminal-border'
+          className={`bg-terminal-bg rounded-lg border p-6 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
+            selectedCategory === 'intermediate' ? 'border-terminal-accent bg-terminal-accent/5' : 'border-terminal-border'
           }`}
         >
-          <div className="text-2xl mb-2">📈</div>
-          <h3 className="text-sm font-semibold text-terminal-accent mb-1">Intermediate</h3>
-          <p className="text-xs text-gray-400">Technical analysis, DeFi, trading strategies</p>
-          <div className="mt-3 text-xs text-yellow-400">
-            {learningData?.stats?.intermediate || 0} courses available
+          <div className="text-3xl mb-3">📈</div>
+          <h3 className="text-sm font-semibold text-terminal-accent mb-2">Intermediate</h3>
+          <p className="text-xs text-gray-400 mb-3">Technical analysis, DeFi, trading strategies</p>
+          <div className="mt-2 text-xs text-yellow-400 font-medium">
+            {getCategoryStats('intermediate')} courses available
           </div>
         </button>
 
         <button
           onClick={() => handleCategorySelect('advanced')}
-          className={`bg-terminal-bg rounded-lg border p-4 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
-            selectedCategory === 'advanced' ? 'border-terminal-accent' : 'border-terminal-border'
+          className={`bg-terminal-bg rounded-lg border p-6 text-center hover:border-terminal-accent transition-colors cursor-pointer ${
+            selectedCategory === 'advanced' ? 'border-terminal-accent bg-terminal-accent/5' : 'border-terminal-border'
           }`}
         >
-          <div className="text-2xl mb-2">🚀</div>
-          <h3 className="text-sm font-semibold text-terminal-accent mb-1">Advanced</h3>
-          <p className="text-xs text-gray-400">On-chain analysis, quantitative trading, research</p>
-          <div className="mt-3 text-xs text-red-400">
-            {learningData?.stats?.advanced || 0} courses available
+          <div className="text-3xl mb-3">🚀</div>
+          <h3 className="text-sm font-semibold text-terminal-accent mb-2">Advanced</h3>
+          <p className="text-xs text-gray-400 mb-3">On-chain analysis, quantitative trading, research</p>
+          <div className="mt-2 text-xs text-red-400 font-medium">
+            {getCategoryStats('advanced')} courses available
           </div>
         </button>
       </div>
 
       {/* Category Filter Display */}
       {selectedCategory && (
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between bg-terminal-bg border border-terminal-border rounded-lg p-3">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-terminal-accent">
-              Showing: {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} courses
+              Showing: <span className="font-semibold">{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}</span> courses
             </span>
-            <button
-              onClick={() => handleCategorySelect('')}
-              className="px-2 py-1 text-xs bg-terminal-border text-terminal-accent rounded hover:bg-terminal-accent hover:text-black transition-colors"
-            >
-              Clear filter
-            </button>
           </div>
+          <button
+            onClick={() => handleCategorySelect('')}
+            className="px-3 py-1 text-xs bg-terminal-border text-terminal-accent rounded hover:bg-terminal-accent hover:text-black transition-colors"
+          >
+            Clear filter
+          </button>
         </div>
       )}
-
-      {/* User Submitted Learning Resources - Hidden */}
-      {false && Array.isArray(learningData?.data) && learningData.data.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-terminal-accent mb-4">📚 Submitted Resources</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {learningData.data.map((item: any, idx: number) => {
-              const title = item.title || item.link || `Learning Resource #${idx + 1}`;
-              const description = item.description || item.message || '';
-              const date = item.date || item.createdAt || '';
-              const category = item.category || '';
-
-              return (
-                <div key={item.messageId || idx} className="bg-terminal-bg rounded-lg border border-terminal-border overflow-hidden">
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-terminal-accent mb-1">{title}</h3>
-                        {description && <p className="text-xs text-gray-400 mb-2">{description}</p>}
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
-                          {date && <span>📅 {date}</span>}
-                          {date && <span>•</span>}
-                          {category && <span>{category}</span>}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1">
-                        <FontAwesomeIcon icon={faSignal} className="w-3 h-3 text-terminal-accent" />
-                        <span className="text-xs text-terminal-accent">{item.author || 'Unknown'}</span>
-                      </div>
-                      <a
-                        href={item.link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1 bg-terminal-accent text-black text-xs font-medium rounded hover:bg-terminal-accent/80 transition-colors"
-                      >
-                        🔗 View Resource
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-
 
       {/* Course Library with Search and Pagination */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h3 className="text-lg font-semibold text-terminal-accent">📚 Course Library</h3>
-          <div className="relative">
+          <div className="relative w-full sm:w-64">
             <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search courses..."
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent text-sm"
+              className="w-full pl-10 pr-4 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent text-sm"
             />
           </div>
         </div>
 
         {/* Pagination Info */}
         {filteredLearningData.length > 0 && (
-          <div className="flex items-center justify-between mb-4 text-sm text-gray-400">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-4 text-sm text-gray-400">
             <span>Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredLearningData.length)} of {filteredLearningData.length} courses</span>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
@@ -399,7 +339,7 @@ export default function LearningPage() {
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
               </button>
-              <span className="text-terminal-accent">Page {currentPage} of {totalPages}</span>
+              <span className="text-terminal-accent">Page {currentPage} of {totalPages || 1}</span>
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
@@ -411,330 +351,204 @@ export default function LearningPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {paginatedLearningData.length > 0 ? (
-            paginatedLearningData.map((item: any, idx: number) => {
-              const title = item.title || item.link || `Course #${startIndex + idx + 1}`;
-              const description = item.description || item.message || '';
-              const author = item.author || 'Unknown';
-
-              return (
-                <div key={item.messageId || idx} className="bg-terminal-bg rounded-lg border border-terminal-border p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">Course</span>
-                    <span className="text-xs text-gray-500">By {author}</span>
+        {/* Learning Resources Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {!loading && paginatedLearningData.length > 0 ? (
+            paginatedLearningData.map((item) => (
+              <div key={item.id} className="bg-terminal-bg rounded-lg border border-terminal-border overflow-hidden hover:border-terminal-accent/50 transition-all hover:shadow-lg hover:shadow-terminal-accent/5 group">
+                <div className="p-5">
+                  {/* Header with category and difficulty */}
+                  <div className="flex items-start justify-between mb-3">
+                    <span className={`px-2 py-1 text-xs rounded ${
+                      item.category === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                      item.category === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                    </span>
+                    <div className="flex items-center space-x-1 text-xs text-gray-400">
+                      <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
+                      <span>{item.duration}</span>
+                    </div>
                   </div>
-                  <h4 className="text-sm font-semibold text-terminal-accent mb-2">{title}</h4>
-                  {description && <p className="text-xs text-gray-400 mb-3">{description}</p>}
+
+                  {/* Title */}
+                  <h3 className="text-lg font-semibold text-terminal-accent mb-2 line-clamp-2 group-hover:text-terminal-accent/90">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                    {item.description}
+                  </p>
+
+                  {/* Author and Students */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <div className="flex items-center space-x-1">
+                      <span>👤 {item.author}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <FontAwesomeIcon icon={faUserGraduate} className="w-3 h-3" />
+                      <span>{item.students.toLocaleString()} students</span>
+                    </div>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="mb-4">
+                    {renderRating(item.rating)}
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {item.tags.slice(0, 3).map((tag, idx) => (
+                      <span 
+                        key={idx}
+                        className="px-2 py-1 text-xs bg-terminal-panel border border-terminal-border rounded text-gray-400"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Action Button */}
                   <a
-                    href={item.link || '#'}
+                    href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full px-3 py-2 bg-terminal-accent text-black text-xs font-medium rounded hover:bg-terminal-accent/80 transition-colors inline-block text-center"
+                    className="w-full px-4 py-2 bg-terminal-accent text-black text-sm font-medium rounded hover:bg-terminal-accent/80 transition-colors inline-block text-center"
                   >
-                    ▶️ Start Course
+                    ▶️ Start Learning
                   </a>
                 </div>
-              );
-            })
+              </div>
+            ))
           ) : (
-            <div className="col-span-full text-center py-8">
-              <p className="text-gray-400 text-sm">
+            <div className="col-span-full text-center py-12">
+              <div className="text-4xl mb-4">📚</div>
+              <p className="text-gray-400 text-sm mb-2">
                 {searchTerm ? 'No courses found matching your search.' : 'No courses available yet.'}
               </p>
+              {searchTerm && (
+                <button
+                  onClick={() => handleSearchChange('')}
+                  className="text-terminal-accent hover:underline text-sm"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Learning Resources */}
-      <div className="bg-terminal-bg rounded-lg border border-terminal-border p-6 mb-8">
+      {/* Academy Section */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-terminal-accent mb-6">🎓 Academy Programs</h3>
+
+        {/* Academy Resources Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {!loading && academyData.length > 0 ? (
+            academyData.map((item) => (
+              <div key={item.id} className="bg-terminal-bg rounded-lg border border-terminal-border overflow-hidden hover:border-terminal-accent/50 transition-all hover:shadow-lg hover:shadow-terminal-accent/5 group">
+                <div className="p-5">
+                  {/* Header with type and level */}
+                  <div className="flex items-start justify-between mb-3">
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
+                      {item.type}
+                    </span>
+                    <span className={`px-2 py-1 text-xs rounded ${
+                      item.level === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                      item.level === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {item.level}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-semibold text-terminal-accent mb-2 line-clamp-2 group-hover:text-terminal-accent/90">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                    {item.deskripsi}
+                  </p>
+
+                  {/* Metadata */}
+                  <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                    <div className="flex items-center space-x-1 text-gray-500">
+                      <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
+                      <span>{item.duration}</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-gray-500">
+                      <span>📚 {item.lessons} lessons</span>
+                    </div>
+                  </div>
+
+                  {/* Author */}
+                  <div className="text-xs text-gray-500 mb-3">
+                    By {item.author}
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {item.tags.slice(0, 3).map((tag, idx) => (
+                      <span 
+                        key={idx}
+                        className="px-2 py-1 text-xs bg-terminal-panel border border-terminal-border rounded text-gray-400"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Action Button */}
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full px-4 py-2 bg-terminal-accent text-black text-sm font-medium rounded hover:bg-terminal-accent/80 transition-colors inline-block text-center"
+                  >
+                    🔗 View Program
+                  </a>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="text-4xl mb-4">🎓</div>
+              <p className="text-gray-400 text-sm">No academy programs available yet.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Additional Resources Section */}
+      <div className="bg-terminal-bg rounded-lg border border-terminal-border p-6">
         <h3 className="text-lg font-semibold text-terminal-accent mb-4">📖 Additional Resources</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-terminal-accent">📚 Recommended Books</h4>
             <div className="space-y-2 text-xs text-gray-400">
-              <div>• "The Bitcoin Standard" by Saifedean Ammous</div>
-              <div>• "Cryptoassets" by Chris Burniske</div>
-              <div>• "Digital Gold" by Nathaniel Popper</div>
-              <div>• "Mastering Bitcoin" by Antonopoulos</div>
+              <div className="hover:text-terminal-accent transition-colors">• "The Bitcoin Standard" by Saifedean Ammous</div>
+              <div className="hover:text-terminal-accent transition-colors">• "Cryptoassets" by Chris Burniske</div>
+              <div className="hover:text-terminal-accent transition-colors">• "Digital Gold" by Nathaniel Popper</div>
+              <div className="hover:text-terminal-accent transition-colors">• "Mastering Bitcoin" by Antonopoulos</div>
             </div>
           </div>
 
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-terminal-accent">🔗 Useful Links</h4>
             <div className="space-y-2 text-xs text-gray-400">
-              <div>• CoinMarketCap Academy</div>
-              <div>• Binance Academy</div>
-              <div>• Ethereum.org Documentation</div>
-              <div>• DeFi Pulse Guides</div>
+              <div className="hover:text-terminal-accent transition-colors">• CoinMarketCap Academy</div>
+              <div className="hover:text-terminal-accent transition-colors">• Binance Academy</div>
+              <div className="hover:text-terminal-accent transition-colors">• Ethereum.org Documentation</div>
+              <div className="hover:text-terminal-accent transition-colors">• DeFi Pulse Guides</div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Academy Section */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-terminal-accent">🎓 Academy</h3>
-          <button
-            onClick={() => setIsAcademyModalOpen(true)}
-            className="px-4 py-2 bg-terminal-accent text-black font-medium rounded hover:bg-terminal-accent/80 transition-colors flex items-center space-x-2"
-          >
-            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-            <span>Add Academy Resource</span>
-          </button>
-        </div>
-
-        {/* Academy Resources - Two Rows */}
-        <div className="space-y-4">
-          {Array.isArray(academyData?.data) && academyData.data.length > 0 ? (
-            <>
-              {/* First Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {academyData.data.slice(0, 4).map((item: any, idx: number) => {
-                  const title = item.title || item.link || `Academy Resource #${idx + 1}`;
-                  const description = item.deskripsi || item.description || '';
-                  const author = item.author || 'Unknown';
-
-                  return (
-                    <div key={item.messageId || idx} className="bg-terminal-bg rounded-lg border border-terminal-border p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">Academy</span>
-                        <span className="text-xs text-gray-500">By {author}</span>
-                      </div>
-                      <h4 className="text-sm font-semibold text-terminal-accent mb-2">{title}</h4>
-                      {description && <p className="text-xs text-gray-400 mb-3 line-clamp-2">{description}</p>}
-                      <a
-                        href={item.link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full px-3 py-2 bg-terminal-accent text-black text-xs font-medium rounded hover:bg-terminal-accent/80 transition-colors inline-block text-center"
-                      >
-                        🔗 View Resource
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Second Row */}
-              {academyData.data.length > 4 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {academyData.data.slice(4, 8).map((item: any, idx: number) => {
-                    const title = item.title || item.link || `Academy Resource #${idx + 5}`;
-                    const description = item.deskripsi || item.description || '';
-                    const author = item.author || 'Unknown';
-
-                    return (
-                      <div key={item.messageId || idx + 4} className="bg-terminal-bg rounded-lg border border-terminal-border p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">Academy</span>
-                          <span className="text-xs text-gray-500">By {author}</span>
-                        </div>
-                        <h4 className="text-sm font-semibold text-terminal-accent mb-2">{title}</h4>
-                        {description && <p className="text-xs text-gray-400 mb-3 line-clamp-2">{description}</p>}
-                        <a
-                          href={item.link || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full px-3 py-2 bg-terminal-accent text-black text-xs font-medium rounded hover:bg-terminal-accent/80 transition-colors inline-block text-center"
-                        >
-                          🔗 View Resource
-                        </a>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-400 text-sm">No academy resources available yet.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-terminal-bg rounded-lg border border-terminal-border p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-terminal-accent">📤 Add Learning Resource</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-terminal-accent"
-              >
-                <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleLearningSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Resource Link (URL)</label>
-                <input
-                  type="url"
-                  value={learningForm.link}
-                  onChange={(e) => setLearningForm({ ...learningForm, link: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="https://example.com/learning-resource"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Author</label>
-                <input
-                  type="text"
-                  value={learningForm.author}
-                  onChange={(e) => setLearningForm({ ...learningForm, author: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="Author name"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Title</label>
-                <input
-                  type="text"
-                  value={learningForm.title}
-                  onChange={(e) => setLearningForm({ ...learningForm, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="Resource title or topic"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Category</label>
-                <select
-                  value={learningForm.category}
-                  onChange={(e) => setLearningForm({ ...learningForm, category: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent focus:outline-none focus:border-terminal-accent"
-                  required
-                >
-                  <option value="beginner">🌱 Beginner - Crypto basics, wallet setup</option>
-                  <option value="intermediate">📈 Intermediate - Technical analysis, DeFi</option>
-                  <option value="advanced">🚀 Advanced - On-chain analysis, research</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Description (Optional)</label>
-                <textarea
-                  value={learningForm.description}
-                  onChange={(e) => setLearningForm({ ...learningForm, description: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent resize-none"
-                  placeholder="Brief description of the learning resource"
-                  rows={3}
-                />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  disabled={learningSubmitting}
-                  className="flex-1 px-4 py-2 bg-terminal-accent text-black font-medium rounded hover:bg-terminal-accent/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {learningSubmitting ? 'Submitting...' : 'Add Resource'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-terminal-panel border border-terminal-border text-terminal-accent rounded hover:bg-terminal-border transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-              {learningSubmitMessage && (
-                <p className={`text-sm ${learningSubmitError ? 'text-red-400' : 'text-green-400'}`}>
-                  {learningSubmitMessage}
-                </p>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Academy Modal */}
-      {isAcademyModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-terminal-bg rounded-lg border border-terminal-border p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-terminal-accent">🎓 Add Academy Resource</h3>
-              <button
-                onClick={() => setIsAcademyModalOpen(false)}
-                className="text-gray-400 hover:text-terminal-accent"
-              >
-                <FontAwesomeIcon icon={faTimes} className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleAcademySubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Resource Link (URL)</label>
-                <input
-                  type="url"
-                  value={academyForm.link}
-                  onChange={(e) => setAcademyForm({ ...academyForm, link: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="https://example.com/academy-resource"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Author</label>
-                <input
-                  type="text"
-                  value={academyForm.author}
-                  onChange={(e) => setAcademyForm({ ...academyForm, author: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="Author name"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Description</label>
-                <textarea
-                  value={academyForm.deskripsi}
-                  onChange={(e) => setAcademyForm({ ...academyForm, deskripsi: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent resize-none"
-                  placeholder="Description of the academy resource"
-                  rows={3}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-terminal-accent mb-2">Title</label>
-                <input
-                  type="text"
-                  value={academyForm.title}
-                  onChange={(e) => setAcademyForm({ ...academyForm, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-terminal-panel border border-terminal-border rounded text-terminal-accent placeholder-gray-500 focus:outline-none focus:border-terminal-accent"
-                  placeholder="Resource title or topic"
-                  required
-                />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  disabled={academySubmitting}
-                  className="flex-1 px-4 py-2 bg-terminal-accent text-black font-medium rounded hover:bg-terminal-accent/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {academySubmitting ? 'Submitting...' : 'Add Resource'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAcademyModalOpen(false)}
-                  className="px-4 py-2 bg-terminal-panel border border-terminal-border text-terminal-accent rounded hover:bg-terminal-border transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-              {academySubmitMessage && (
-                <p className={`text-sm ${academySubmitError ? 'text-red-400' : 'text-green-400'}`}>
-                  {academySubmitMessage}
-                </p>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
