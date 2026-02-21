@@ -15,9 +15,7 @@ import {
   faSearch,
   faFilter,
   faCoins,
-  faCircle,
-  faSquare,
-  faClock // Tambahkan icon clock
+  faClock
 } from '@fortawesome/free-solid-svg-icons';
 
 interface Coin {
@@ -43,8 +41,8 @@ export default function CoinMarketPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true); // State untuk toggle auto-refresh
-  const [countdown, setCountdown] = useState(15); // Countdown timer
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [countdown, setCountdown] = useState(15);
 
   // Generate 100+ dummy coins
   const generateCoins = (): Coin[] => {
@@ -202,23 +200,20 @@ export default function CoinMarketPage() {
       countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
+            // Trigger refresh when countdown reaches 0
+            refreshData();
             return 15;
           }
           return prev - 1;
         });
       }, 1000);
-
-      // Refresh data every 15 seconds
-      interval = setInterval(() => {
-        refreshData();
-      }, 15000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [autoRefreshEnabled]); // Re-run when autoRefreshEnabled changes
+  }, [autoRefreshEnabled]);
 
   // Initial load
   useEffect(() => {
@@ -302,42 +297,29 @@ export default function CoinMarketPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
-      {/* Header */}
-      <div className="terminal-panel mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="terminal-header text-xl sm:text-2xl">📊 Crypto Market</h1>
-            <p className="text-gray-400 text-xs sm:text-sm mt-1">
-              Live prices and trading signals for 100+ cryptocurrencies
-            </p>
+      {/* Header - Centered */}
+      <div className="text-center mb-6">
+        <h1 className="text-3xl sm:text-4xl font-bold text-terminal-accent mb-2">
+          CRYPTO MARKET
+        </h1>
+        
+        {/* Last Updated and Refresh Info */}
+        <div className="flex items-center justify-center space-x-4 text-sm">
+          <div className="text-gray-400">
+            Last updated: {lastUpdated.toLocaleTimeString()}
           </div>
-          <div className="flex items-center space-x-3">
-            {/* Auto-refresh indicator and toggle */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
-                className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
-                  autoRefreshEnabled 
-                    ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
-                    : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
-                }`}
-                title={autoRefreshEnabled ? 'Auto-refresh on' : 'Auto-refresh off'}
-              >
-                <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
-                <span>{autoRefreshEnabled ? `${countdown}s` : 'Off'}</span>
-              </button>
-            </div>
-            
-            <div className="text-xs text-gray-500">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </div>
+          <div className="flex items-center space-x-2">
             <button
-              onClick={refreshData}
-              disabled={loading}
-              className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-terminal-accent text-black font-medium rounded hover:bg-terminal-accent/80 transition-colors disabled:opacity-50 text-sm sm:text-base"
+              onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+              className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-colors ${
+                autoRefreshEnabled 
+                  ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
+                  : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+              }`}
+              title={autoRefreshEnabled ? 'Auto-refresh on' : 'Auto-refresh off'}
             >
-              <FontAwesomeIcon icon={faRefresh} className={`w-3 h-3 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
+              <span>{autoRefreshEnabled ? `Refresh in ${countdown}s` : 'Auto-refresh off'}</span>
             </button>
           </div>
         </div>
