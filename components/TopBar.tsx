@@ -146,7 +146,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
           <span className="text-terminal-danger font-bold text-xs uppercase flex-shrink-0 mr-4">Breaking</span>
           <div className="overflow-hidden flex-1 relative" style={{ height: '24px' }}>
             {isClient && (
-              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 60s linear infinite' }}>
+              <div className="absolute whitespace-nowrap ticker-animation" style={{ animation: 'ticker 80s linear infinite' }}>
                 {newsData?.results?.slice(0, 8).map((article: any, index: number) => (
                   <span key={index} className="inline-block text-sm text-gray-400 mr-8">
                     {article.title}
@@ -235,7 +235,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
         
         .ticker-animation {
           display: inline-flex;
-          animation: ticker 60s linear infinite;
+          animation: ticker 80s linear infinite;
           will-change: transform;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
@@ -250,7 +250,7 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
         /* Mobile optimization */
         @media (max-width: 768px) {
           .ticker-animation {
-            animation-duration: 55s;
+            animation-duration: 80s;
           }
         }
       `}</style>
