@@ -152,11 +152,11 @@ export default function CoinMarketPage() {
     return coinNames.map((coin, index) => {
       // Generate random price based on coin type
       let basePrice = Math.random() * 1000;
-      if (coin.symbol === 'BTC') basePrice = 45000 + (Math.random() * 5000 - 2500);
-      else if (coin.symbol === 'ETH') basePrice = 3000 + (Math.random() * 400 - 200);
-      else if (coin.symbol === 'XAUUSD') basePrice = 1950 + (Math.random() * 50 - 25);
-      else if (coin.symbol === 'BNB') basePrice = 350 + (Math.random() * 40 - 20);
-      else if (coin.symbol === 'SOL') basePrice = 100 + (Math.random() * 20 - 10);
+      if (coin.symbol === 'BTC') basePrice = 68000 + (Math.random() * 5000 - 2500);
+      else if (coin.symbol === 'ETH') basePrice = 1960 + (Math.random() * 400 - 200);
+      else if (coin.symbol === 'XAUUSD') basePrice = 5100 + (Math.random() * 50 - 25);
+      else if (coin.symbol === 'BNB') basePrice = 85 + (Math.random() * 40 - 20);
+      else if (coin.symbol === 'SOL') basePrice = 50 + (Math.random() * 20 - 10);
       
       const change = (Math.random() * 20) - 10; // -10% to +10%
       const signal = change > 2 ? 'long' : change < -2 ? 'short' : 'neutral';

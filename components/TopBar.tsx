@@ -43,9 +43,9 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
     { key: 'Alt+1', action: () => goToModule('market') },
     { key: 'Alt+2', action: () => goToModule('news') },
     { key: 'Alt+3', action: () => goToModule('onchain') },
-    { key: 'Alt+4', action: () => goToModule('research') },
-    { key: 'Alt+5', action: () => goToModule('learning') },
-    { key: 'Alt+6', action: () => goToModule('submissions') },
+    { key: 'Alt+4', action: () => goToModule('submissions') },
+    { key: 'Alt+5', action: () => goToModule('research') },
+    { key: 'Alt+6', action: () => goToModule('learning') },
   ]);
 
   // Fetch real news data
@@ -58,9 +58,9 @@ export default function TopBar({ activeModule, setActiveModule }: TopBarProps) {
     { id: 'market', label: 'Market Data', icon: faChartLine, hotkey: 'ALT+1' },
     { id: 'news', label: 'News', icon: faNewspaper, hotkey: 'ALT+2' },
     { id: 'onchain', label: 'On-Chain', icon: faCubes, hotkey: 'ALT+3' },
-    { id: 'research', label: 'Research', icon: faBook, hotkey: 'ALT+4' },
-    { id: 'learning', label: 'Learning', icon: faGraduationCap, hotkey: 'ALT+5' },
-    { id: 'submissions', label: 'Submissions', icon: faList, hotkey: 'ALT+6' },
+    { id: 'submissions', label: 'Crypto Market', icon: faList, hotkey: 'ALT+4' },
+    { id: 'research', label: 'Research', icon: faBook, hotkey: 'ALT+5' },
+    { id: 'learning', label: 'Learning', icon: faGraduationCap, hotkey: 'ALT+6' },
   ];
 
   return (
