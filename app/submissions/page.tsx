@@ -13,12 +13,11 @@ import {
   faStar,
   faFire,
   faSearch,
-  faFilter
+  faFilter,
+  faCoins,
+  faCircle,
+  faSquare
 } from '@fortawesome/free-solid-svg-icons';
-import { 
-  faBitcoin as faBtcBrand,
-  faEthereum as faEthBrand 
-} from '@fortawesome/free-brands-svg-icons';
 
 interface Coin {
   id: string;
@@ -224,11 +223,23 @@ export default function CoinMarketPage() {
     }
   };
 
+  // Ganti dengan icon dari solid icons
   const getCoinIcon = (symbol: string) => {
     switch (symbol) {
-      case 'BTC': return faBtcBrand;
-      case 'ETH': return faEthBrand;
+      case 'BTC': return faBitcoin;
+      case 'ETH': return faEthereum;
+      case 'XAUUSD': return faCoins;
       default: return faDollarSign;
+    }
+  };
+
+  // Warna background untuk icon
+  const getCoinIconColor = (symbol: string) => {
+    switch (symbol) {
+      case 'BTC': return 'bg-orange-500/20 text-orange-400';
+      case 'ETH': return 'bg-blue-500/20 text-blue-400';
+      case 'XAUUSD': return 'bg-yellow-500/20 text-yellow-400';
+      default: return 'bg-gray-500/20 text-gray-400';
     }
   };
 
@@ -373,21 +384,8 @@ export default function CoinMarketPage() {
               <div className="block sm:hidden">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      coin.symbol === 'BTC' ? 'bg-orange-500/20' :
-                      coin.symbol === 'ETH' ? 'bg-blue-500/20' :
-                      coin.symbol === 'XAUUSD' ? 'bg-yellow-500/20' :
-                      'bg-gray-500/20'
-                    }`}>
-                      <FontAwesomeIcon 
-                        icon={getCoinIcon(coin.symbol)} 
-                        className={`w-4 h-4 ${
-                          coin.symbol === 'BTC' ? 'text-orange-400' :
-                          coin.symbol === 'ETH' ? 'text-blue-400' :
-                          coin.symbol === 'XAUUSD' ? 'text-yellow-400' :
-                          'text-gray-400'
-                        }`} 
-                      />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getCoinIconColor(coin.symbol)}`}>
+                      <FontAwesomeIcon icon={getCoinIcon(coin.symbol)} className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="flex items-center space-x-2">
@@ -446,21 +444,8 @@ export default function CoinMarketPage() {
               <div className="hidden sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
                 {/* Coin Info */}
                 <div className="col-span-3 flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    coin.symbol === 'BTC' ? 'bg-orange-500/20' :
-                    coin.symbol === 'ETH' ? 'bg-blue-500/20' :
-                    coin.symbol === 'XAUUSD' ? 'bg-yellow-500/20' :
-                    'bg-gray-500/20'
-                  }`}>
-                    <FontAwesomeIcon 
-                      icon={getCoinIcon(coin.symbol)} 
-                      className={`w-4 h-4 ${
-                        coin.symbol === 'BTC' ? 'text-orange-400' :
-                        coin.symbol === 'ETH' ? 'text-blue-400' :
-                        coin.symbol === 'XAUUSD' ? 'text-yellow-400' :
-                        'text-gray-400'
-                      }`} 
-                    />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getCoinIconColor(coin.symbol)}`}>
+                    <FontAwesomeIcon icon={getCoinIcon(coin.symbol)} className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
