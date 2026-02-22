@@ -43,6 +43,77 @@ export default function CoinMarketPage() {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [countdown, setCountdown] = useState(15);
+  const [failedIcons, setFailedIcons] = useState<Set<string>>(new Set());
+
+  // Daftar coin yang tersedia di cryptocurrency-icons
+  const availableIcons = new Set([
+    'btc', 'eth', 'bnb', 'sol', 'ada', 'xrp', 'dot', 'doge', 'shib', 'avax',
+    'link', 'matic', 'ltc', 'bch', 'xlm', 'uni', 'ape', 'near', 'algo', 'fil',
+    'xtz', 'eos', 'xmr', 'aave', 'atom', 'ftm', 'hbar', 'vet', 'theta', 'trx',
+    'dai', 'egld', 'axs', 'sand', 'mana', 'gala', 'flow', 'chz', 'enj', 'bat',
+    'zec', 'dash', 'comp', 'sushi', 'crv', '1inch', 'yfi', 'mkr', 'snx', 'ohm',
+    'klay', 'celo', 'one', 'iost', 'waves', 'xem', 'iota', 'ont', 'qtum', 'zil',
+    'rvn', 'zen', 'dcr', 'sc', 'storj', 'ar', 'ankr', 'fet', 'ocean', 'ctxc',
+    'nano', 'dgb', 'xvg', 'steem', 'hive', 'lsk', 'ark', 'strax', 'sys', 'rdd',
+    'ppc', 'nmc', 'nvc', 'ftc', 'lunc', 'ustc', 'kava', 'band', 'ctsi', 'api3',
+    'oxt', 'keep', 'nu', 'mask', 'rly', 'xyo', 'chr', 'coti', 'dent', 'cvc'
+  ]);
+
+  // Fungsi untuk render icon coin
+  const renderCoinIcon = (coin: Coin) => {
+    const symbolLower = coin.symbol.toLowerCase();
+    const hasFailed = failedIcons.has(symbolLower);
+    
+    // Cek apakah icon tersedia dan belum gagal dimuat
+    if (availableIcons.has(symbolLower) && !hasFailed) {
+      return (
+        <img 
+          src={`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/${symbolLower}.svg`}
+          alt={coin.symbol}
+          className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
+          onError={() => {
+            setFailedIcons(prev => new Set(prev).add(symbolLower));
+          }}
+          loading="lazy"
+        />
+      );
+    }
+    
+    // Fallback untuk XAUUSD
+    if (coin.symbol === 'XAUUSD') {
+      return (
+        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center">
+          <FontAwesomeIcon icon={faCoins} className="w-3 h-3 sm:w-4 sm:h-4" />
+        </div>
+      );
+    }
+    
+    // Fallback berdasarkan simbol
+    let bgColor = 'bg-gray-500/20';
+    let iconColor = 'text-gray-400';
+    let icon = faDollarSign;
+    
+    switch (coin.symbol) {
+      case 'BTC':
+        bgColor = 'bg-orange-500/20';
+        iconColor = 'text-orange-400';
+        icon = faBitcoin;
+        break;
+      case 'ETH':
+        bgColor = 'bg-blue-500/20';
+        iconColor = 'text-blue-400';
+        icon = faEthereum;
+        break;
+      default:
+        break;
+    }
+    
+    return (
+      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center ${bgColor} ${iconColor}`}>
+        <FontAwesomeIcon icon={icon} className="w-3 h-3 sm:w-4 sm:h-4" />
+      </div>
+    );
+  };
 
   // Generate 100+ dummy coins
   const generateCoins = (): Coin[] => {
@@ -251,26 +322,6 @@ export default function CoinMarketPage() {
     }
   };
 
-  // Ganti dengan icon dari solid icons
-  const getCoinIcon = (symbol: string) => {
-    switch (symbol) {
-      case 'BTC': return faBitcoin;
-      case 'ETH': return faEthereum;
-      case 'XAUUSD': return faCoins;
-      default: return faDollarSign;
-    }
-  };
-
-  // Warna background untuk icon
-  const getCoinIconColor = (symbol: string) => {
-    switch (symbol) {
-      case 'BTC': return 'bg-orange-500/20 text-orange-400';
-      case 'ETH': return 'bg-blue-500/20 text-blue-400';
-      case 'XAUUSD': return 'bg-yellow-500/20 text-yellow-400';
-      default: return 'bg-gray-500/20 text-gray-400';
-    }
-  };
-
   const formatPrice = (price: number, symbol: string) => {
     if (symbol === 'BTC' || symbol === 'ETH' || symbol === 'XAUUSD') {
       return new Intl.NumberFormat('en-US', {
@@ -415,9 +466,7 @@ export default function CoinMarketPage() {
               <div className="block sm:hidden">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getCoinIconColor(coin.symbol)}`}>
-                      <FontAwesomeIcon icon={getCoinIcon(coin.symbol)} className="w-4 h-4" />
-                    </div>
+                    {renderCoinIcon(coin)}
                     <div>
                       <div className="flex items-center space-x-2">
                         <span className="font-semibold text-terminal-accent">{coin.symbol}</span>
@@ -475,9 +524,7 @@ export default function CoinMarketPage() {
               <div className="hidden sm:grid sm:grid-cols-12 sm:items-center sm:gap-4">
                 {/* Coin Info */}
                 <div className="col-span-3 flex items-center space-x-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getCoinIconColor(coin.symbol)}`}>
-                    <FontAwesomeIcon icon={getCoinIcon(coin.symbol)} className="w-4 h-4" />
-                  </div>
+                  {renderCoinIcon(coin)}
                   <div>
                     <div className="flex items-center space-x-2">
                       <span className="font-semibold text-terminal-accent">{coin.symbol}</span>
